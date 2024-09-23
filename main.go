@@ -13,22 +13,13 @@ import (
 	"applicationDesignTest/internal/domain"
 	"applicationDesignTest/internal/pkg/log"
 	"applicationDesignTest/internal/pkg/utils"
+	"applicationDesignTest/internal/repository"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"os"
 	"time"
 )
-
-var Orders = []domain.Order{}
-
-var Availability = []domain.RoomAvailability{
-	{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 1), Quota: 1},
-	{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 2), Quota: 1},
-	{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 3), Quota: 1},
-	{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 4), Quota: 1},
-	{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 5), Quota: 0},
-}
 
 func main() {
 	mux := http.NewServeMux()
@@ -56,12 +47,12 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, dayToBook := range daysToBook {
-		for i, availability := range Availability {
+		for i, availability := range repository.Availability {
 			if !availability.Date.Equal(dayToBook) || availability.Quota < 1 {
 				continue
 			}
 			availability.Quota -= 1
-			Availability[i] = availability
+			repository.Availability[i] = availability
 			delete(unavailableDays, dayToBook)
 		}
 	}
@@ -72,7 +63,7 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	Orders = append(Orders, newOrder)
+	repository.Orders = append(repository.Orders, newOrder)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
