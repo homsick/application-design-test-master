@@ -47,12 +47,12 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, dayToBook := range daysToBook {
-		for i, availability := range repository.Availability {
+		for i, availability := range repository.Repo.Availability {
 			if !availability.Date.Equal(dayToBook) || availability.Quota < 1 {
 				continue
 			}
 			availability.Quota -= 1
-			repository.Availability[i] = availability
+			repository.Repo.Availability[i] = availability
 			delete(unavailableDays, dayToBook)
 		}
 	}
@@ -63,7 +63,7 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repository.Orders = append(repository.Orders, newOrder)
+	repository.Repo.Orders = append(repository.Repo.Orders, newOrder)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
