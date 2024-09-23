@@ -24,11 +24,11 @@ import (
 var Orders = []domain.Order{}
 
 var Availability = []domain.RoomAvailability{
-	{"reddison", "lux", utils.Date(2024, 1, 1), 1},
-	{"reddison", "lux", utils.Date(2024, 1, 2), 1},
-	{"reddison", "lux", utils.Date(2024, 1, 3), 1},
-	{"reddison", "lux", utils.Date(2024, 1, 4), 1},
-	{"reddison", "lux", utils.Date(2024, 1, 5), 0},
+	{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 1), Quota: 1},
+	{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 2), Quota: 1},
+	{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 3), Quota: 1},
+	{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 4), Quota: 1},
+	{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 5), Quota: 0},
 }
 
 func main() {
