@@ -10,6 +10,7 @@
 package main
 
 import (
+	"applicationDesignTest/internal/domain"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -19,24 +20,9 @@ import (
 	"time"
 )
 
-type Order struct {
-	HotelID   string    `json:"hotel_id"`
-	RoomID    string    `json:"room_id"`
-	UserEmail string    `json:"email"`
-	From      time.Time `json:"from"`
-	To        time.Time `json:"to"`
-}
+var Orders = []domain.Order{}
 
-var Orders = []Order{}
-
-type RoomAvailability struct {
-	HotelID string    `json:"hotel_id"`
-	RoomID  string    `json:"room_id"`
-	Date    time.Time `json:"date"`
-	Quota   int       `json:"quota"`
-}
-
-var Availability = []RoomAvailability{
+var Availability = []domain.RoomAvailability{
 	{"reddison", "lux", date(2024, 1, 1), 1},
 	{"reddison", "lux", date(2024, 1, 2), 1},
 	{"reddison", "lux", date(2024, 1, 3), 1},
@@ -59,7 +45,7 @@ func main() {
 }
 
 func createOrder(w http.ResponseWriter, r *http.Request) {
-	var newOrder Order
+	var newOrder domain.Order
 	json.NewDecoder(r.Body).Decode(&newOrder)
 
 	daysToBook := daysBetween(newOrder.From, newOrder.To)
