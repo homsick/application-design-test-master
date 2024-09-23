@@ -11,11 +11,10 @@ package main
 
 import (
 	"applicationDesignTest/internal/domain"
+	"applicationDesignTest/internal/pkg/log"
 	"applicationDesignTest/internal/pkg/utils"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -35,12 +34,12 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/orders", createOrder)
 
-	LogInfo("Server listening on localhost:8080")
+	log.LogInfo("Server listening on localhost:8080")
 	err := http.ListenAndServe(":8080", mux)
 	if errors.Is(err, http.ErrServerClosed) {
-		LogInfo("Server closed")
+		log.LogInfo("Server closed")
 	} else if err != nil {
-		LogErrorf("Server failed: %s", err)
+		log.LogErrorf("Server failed: %s", err)
 		os.Exit(1)
 	}
 }
@@ -69,7 +68,7 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 
 	if len(unavailableDays) != 0 {
 		http.Error(w, "Hotel room is not available for selected dates", http.StatusInternalServerError)
-		LogErrorf("Hotel room is not available for selected dates:\n%v\n%v", newOrder, unavailableDays)
+		log.LogErrorf("Hotel room is not available for selected dates:\n%v\n%v", newOrder, unavailableDays)
 		return
 	}
 
@@ -79,17 +78,5 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(newOrder)
 
-	LogInfo("Order successfully created: %v", newOrder)
-}
-
-var logger = log.Default()
-
-func LogErrorf(format string, v ...any) {
-	msg := fmt.Sprintf(format, v...)
-	logger.Printf("[Error]: %s\n", msg)
-}
-
-func LogInfo(format string, v ...any) {
-	msg := fmt.Sprintf(format, v...)
-	logger.Printf("[Info]: %s\n", msg)
+	log.LogInfo("Order successfully created: %v", newOrder)
 }
