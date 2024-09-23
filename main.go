@@ -11,6 +11,7 @@ package main
 
 import (
 	"applicationDesignTest/internal/domain"
+	"applicationDesignTest/internal/pkg/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -23,11 +24,11 @@ import (
 var Orders = []domain.Order{}
 
 var Availability = []domain.RoomAvailability{
-	{"reddison", "lux", date(2024, 1, 1), 1},
-	{"reddison", "lux", date(2024, 1, 2), 1},
-	{"reddison", "lux", date(2024, 1, 3), 1},
-	{"reddison", "lux", date(2024, 1, 4), 1},
-	{"reddison", "lux", date(2024, 1, 5), 0},
+	{"reddison", "lux", utils.Date(2024, 1, 1), 1},
+	{"reddison", "lux", utils.Date(2024, 1, 2), 1},
+	{"reddison", "lux", utils.Date(2024, 1, 3), 1},
+	{"reddison", "lux", utils.Date(2024, 1, 4), 1},
+	{"reddison", "lux", utils.Date(2024, 1, 5), 0},
 }
 
 func main() {
@@ -48,7 +49,7 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 	var newOrder domain.Order
 	json.NewDecoder(r.Body).Decode(&newOrder)
 
-	daysToBook := daysBetween(newOrder.From, newOrder.To)
+	daysToBook := utils.DaysBetween(newOrder.From, newOrder.To)
 
 	unavailableDays := make(map[time.Time]struct{})
 	for _, day := range daysToBook {
@@ -79,27 +80,6 @@ func createOrder(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(newOrder)
 
 	LogInfo("Order successfully created: %v", newOrder)
-}
-
-func daysBetween(from time.Time, to time.Time) []time.Time {
-	if from.After(to) {
-		return nil
-	}
-
-	days := make([]time.Time, 0)
-	for d := toDay(from); !d.After(toDay(to)); d = d.AddDate(0, 0, 1) {
-		days = append(days, d)
-	}
-
-	return days
-}
-
-func toDay(timestamp time.Time) time.Time {
-	return time.Date(timestamp.Year(), timestamp.Month(), timestamp.Day(), 0, 0, 0, 0, time.UTC)
-}
-
-func date(year, month, day int) time.Time {
-	return time.Date(year, time.Month(month), day, 0, 0, 0, 0, time.UTC)
 }
 
 var logger = log.Default()
