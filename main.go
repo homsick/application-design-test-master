@@ -12,13 +12,11 @@ package main
 import (
 	"applicationDesignTest/internal/domain"
 	"applicationDesignTest/internal/pkg/log"
-	"applicationDesignTest/internal/pkg/utils"
-	"applicationDesignTest/internal/repository"
+	"applicationDesignTest/internal/service"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"os"
-	"time"
 )
 
 func main() {
@@ -35,39 +33,22 @@ func main() {
 	}
 }
 
+var OrderService = service.NewOrderService()
+
 func createOrder(w http.ResponseWriter, r *http.Request) {
 	var newOrder domain.Order
 	json.NewDecoder(r.Body).Decode(&newOrder)
 
-	daysToBook := utils.DaysBetween(newOrder.From, newOrder.To)
+	createdOrder, err := OrderService.CreateOrder(newOrder)
 
-	unavailableDays := make(map[time.Time]struct{})
-	for _, day := range daysToBook {
-		unavailableDays[day] = struct{}{}
-	}
-
-	for _, dayToBook := range daysToBook {
-		for i, availability := range repository.Repo.Availability {
-			if !availability.Date.Equal(dayToBook) || availability.Quota < 1 {
-				continue
-			}
-			availability.Quota -= 1
-			repository.Repo.Availability[i] = availability
-			delete(unavailableDays, dayToBook)
-		}
-	}
-
-	if len(unavailableDays) != 0 {
-		http.Error(w, "Hotel room is not available for selected dates", http.StatusInternalServerError)
-		log.LogErrorf("Hotel room is not available for selected dates:\n%v\n%v", newOrder, unavailableDays)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	repository.Repo.Orders = append(repository.Repo.Orders, newOrder)
-
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(newOrder)
+	json.NewEncoder(w).Encode(createdOrder)
 
-	log.LogInfo("Order successfully created: %v", newOrder)
+	log.LogInfo("Order successfully created: %v", createdOrder)
 }
