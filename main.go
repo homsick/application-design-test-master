@@ -10,10 +10,8 @@
 package main
 
 import (
-	"applicationDesignTest/internal/domain"
+	v1 "applicationDesignTest/internal/delivery/http/v1"
 	"applicationDesignTest/internal/pkg/log"
-	"applicationDesignTest/internal/service"
-	"encoding/json"
 	"errors"
 	"net/http"
 	"os"
@@ -21,7 +19,7 @@ import (
 
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/orders", createOrder)
+	mux.HandleFunc("/orders", v1.CreateOrder)
 
 	log.LogInfo("Server listening on localhost:8080")
 	err := http.ListenAndServe(":8080", mux)
@@ -31,24 +29,4 @@ func main() {
 		log.LogErrorf("Server failed: %s", err)
 		os.Exit(1)
 	}
-}
-
-var OrderService = service.NewOrderService()
-
-func createOrder(w http.ResponseWriter, r *http.Request) {
-	var newOrder domain.Order
-	json.NewDecoder(r.Body).Decode(&newOrder)
-
-	createdOrder, err := OrderService.CreateOrder(newOrder)
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(createdOrder)
-
-	log.LogInfo("Order successfully created: %v", createdOrder)
 }
