@@ -20,14 +20,13 @@ func (r *InMemoryRepository) AddOrder(newOrder domain.Order) {
 }
 
 func (r *InMemoryRepository) updateAvailability(daysToBook []time.Time, unavailableDays map[time.Time]struct{}) {
-
 	for _, dayToBook := range daysToBook {
-		for i, availability := range Repo.Availability {
+		for i, availability := range r.Availability {
 			if !availability.Date.Equal(dayToBook) || availability.Quota < 1 {
 				continue
 			}
 			availability.Quota -= 1
-			Repo.Availability[i] = availability
+			r.Availability[i] = availability
 			delete(unavailableDays, dayToBook)
 		}
 	}
