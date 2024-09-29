@@ -10,9 +10,9 @@
 package main
 
 import (
-	"applicationDesignTest/internal/server"
+	"applicationDesignTest/internal/app"
 )
 
 func main() {
-	server.StartServer()
+	app.Run()
 }
