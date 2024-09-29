@@ -20,11 +20,14 @@ func NewHandler(services *service.OrderService) *Handler {
 
 func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	var newOrder domain.Order
-	json.NewDecoder(r.Body).Decode(&newOrder)
+	if err := json.NewDecoder(r.Body).Decode(&newOrder); err != nil {
+		http.Error(w, "Invalid order data", http.StatusBadRequest)
+		return
+	}
 
 	createdOrder, err := h.services.CreateOrder(newOrder)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusConflict)
 		return
 	}
 
