@@ -3,15 +3,10 @@ package v1
 import (
 	"applicationDesignTest/internal/domain"
 	"applicationDesignTest/internal/pkg/log"
-	"applicationDesignTest/internal/repository"
 	"applicationDesignTest/internal/service"
 	"encoding/json"
 	"net/http"
 )
-
-var inmemoryrepository = &repository.InMemoryRepository{}
-
-var OrderService = service.NewOrderService(inmemoryrepository)
 
 type Handler struct {
 	services *service.OrderService
