@@ -13,11 +13,21 @@ var inmemoryrepository = &repository.InMemoryRepository{}
 
 var OrderService = service.NewOrderService(inmemoryrepository)
 
-func CreateOrder(w http.ResponseWriter, r *http.Request) {
+type Handler struct {
+	services *service.OrderService
+}
+
+func NewHandler(services *service.OrderService) *Handler {
+	return &Handler{
+		services: services,
+	}
+}
+
+func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	var newOrder domain.Order
 	json.NewDecoder(r.Body).Decode(&newOrder)
 
-	createdOrder, err := OrderService.CreateOrder(newOrder)
+	createdOrder, err := h.services.CreateOrder(newOrder)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
