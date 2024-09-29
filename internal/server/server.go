@@ -1,16 +1,16 @@
 package server
 
 import (
-	v1 "applicationDesignTest/internal/delivery/http/v1"
+	delivery "applicationDesignTest/internal/delivery/http"
 	"applicationDesignTest/internal/pkg/log"
 	"errors"
 	"net/http"
 	"os"
 )
 
-func StartServer() {
+func StartServer(handlers *delivery.Handler) {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/orders", v1.CreateOrder)
+	mux.HandleFunc("/orders", handlers.CreateOrder)
 
 	log.LogInfo("Server listening on localhost:8080")
 	err := http.ListenAndServe(":8080", mux)
