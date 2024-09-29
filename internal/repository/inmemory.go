@@ -2,7 +2,6 @@ package repository
 
 import (
 	"applicationDesignTest/internal/domain"
-	"applicationDesignTest/internal/pkg/utils"
 	"time"
 )
 
@@ -12,14 +11,8 @@ type InMemoryRepository struct {
 }
 
 var Repo = &InMemoryRepository{
-	Orders: []domain.Order{},
-	Availability: []domain.RoomAvailability{
-		{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 1), Quota: 1},
-		{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 2), Quota: 1},
-		{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 3), Quota: 1},
-		{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 4), Quota: 1},
-		{HotelID: "reddison", RoomID: "lux", Date: utils.Date(2024, 1, 5), Quota: 0},
-	},
+	Orders:       []domain.Order{},
+	Availability: []domain.RoomAvailability{},
 }
 
 func (r *InMemoryRepository) AddOrder(newOrder domain.Order) {
@@ -49,4 +42,8 @@ func (r *InMemoryRepository) CheckAvailability(daysToBook []time.Time) map[time.
 	r.updateAvailability(daysToBook, unavailableDays)
 
 	return unavailableDays
+}
+
+func (r *InMemoryRepository) AddRoomAvailability(roomAvailability []domain.RoomAvailability) {
+	r.Availability = append(r.Availability, roomAvailability...)
 }
