@@ -2,37 +2,29 @@ package service
 
 import (
 	"applicationDesignTest/internal/domain"
-	"applicationDesignTest/internal/pkg/log"
-	"applicationDesignTest/internal/pkg/utils"
-	"fmt"
+	repository "applicationDesignTest/internal/repository/inmemory"
 	"time"
 )
 
-type Repository interface {
-	AddOrder(newOrder domain.Order)
+type Order interface {
+	CreateOrder(newOrder domain.Order) (domain.Order, error)
+}
+
+type RoomAvailability interface {
 	CheckAvailability(daysToBook []time.Time) map[time.Time]struct{}
 }
 
-type OrderService struct {
-	repo Repository
+type Services struct {
+	Order            Order
+	RoomAvailability RoomAvailability
 }
 
-func NewOrderService(repo Repository) *OrderService {
-	return &OrderService{
-		repo: repo,
+func NewServices(repos *repository.Repositories) *Services {
+	roomAvailabilityService := NewRoomAvailabilityService(repos.RoomsAvailability)
+	orderService := NewOrderService(repos.Orders, roomAvailabilityService)
+
+	return &Services{
+		Order:            orderService,
+		RoomAvailability: roomAvailabilityService,
 	}
-}
-
-func (s *OrderService) CreateOrder(newOrder domain.Order) (domain.Order, error) {
-	daysToBook := utils.DaysBetween(newOrder.From, newOrder.To)
-
-	unavailableDays := s.repo.CheckAvailability(daysToBook)
-
-	if len(unavailableDays) != 0 {
-		log.LogErrorf("Hotel room is not available for selected dates:\n%v\n%v", newOrder, unavailableDays)
-		return domain.Order{}, fmt.Errorf("hotel room is not available for selected dates: \n%v\n%v", newOrder, unavailableDays)
-	}
-
-	s.repo.AddOrder(newOrder)
-	return newOrder, nil
 }

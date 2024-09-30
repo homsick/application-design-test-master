@@ -9,10 +9,10 @@ import (
 )
 
 type Handler struct {
-	services *service.OrderService
+	services *service.Services
 }
 
-func NewHandler(services *service.OrderService) *Handler {
+func NewHandler(services *service.Services) *Handler {
 	return &Handler{
 		services: services,
 	}
@@ -25,7 +25,7 @@ func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createdOrder, err := h.services.CreateOrder(newOrder)
+	createdOrder, err := h.services.Order.CreateOrder(newOrder)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
